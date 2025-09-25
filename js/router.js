@@ -8,7 +8,7 @@ class Router {
             notes: 'notes-page',
             todos: 'todos-page',
             chat: 'chat-page',
-            timer: 'timer-page',
+            timer: 'pomodoro-page',
             projects: 'projects-page'
         };
         
@@ -139,8 +139,8 @@ class Router {
                 break;
                 
             case 'timer':
-                if (window.timerManager) {
-                    window.timerManager.updateDisplay();
+                if (window.pomodoroManager) {
+                    window.pomodoroManager.updateUI();
                 }
                 break;
                 
