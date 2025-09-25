@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能笔记应用</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 背景渐变动画 -->
+    <div class="background-gradient-animation">
+        <div class="gradient-orb"></div>
+        <div class="gradient-orb"></div>
+        <div class="gradient-orb"></div>
+        <div class="gradient-orb"></div>
+        <div class="gradient-orb"></div>
+    </div>
+
+    <!-- 加载屏幕 -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">正在加载智能笔记应用...</div>
+        </div>
+    </div>
+
+    <!-- 错误屏幕 -->
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <div class="error-message">应用初始化失败</div>
+            <button class="btn btn-primary" onclick="window.location.reload()">重新加载</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- 左侧导航栏 -->
+        <nav class="sidebar" id="sidebar">
+            <!-- 侧边栏头部 -->
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="brand-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="brand-text">
+                        <h1 class="app-title">智能笔记</h1>
+                        <p class="app-subtitle">AI助手</p>
+                    </div>
+                </div>
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <!-- 导航菜单 -->
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">
+                        <span>主要功能</span>
+                    </div>
+                    <div class="nav-item active" data-page="notes" data-tooltip="笔记">
+                         <div class="nav-item-icon">
+                             <i class="fas fa-sticky-note"></i>
+                         </div>
+                         <span class="nav-item-text">笔记</span>
+                         <div class="nav-item-badge">3</div>
+                     </div>
+                     <div class="nav-item" data-page="todos" data-tooltip="待办事项">
+                         <div class="nav-item-icon">
+                             <i class="fas fa-tasks"></i>
+                         </div>
+                         <span class="nav-item-text">待办事项</span>
+                         <div class="nav-item-badge">5</div>
+                     </div>
+                     <div class="nav-item" data-page="chat" data-tooltip="AI对话">
+                         <div class="nav-item-icon">
+                             <i class="fas fa-comments"></i>
+                         </div>
+                         <span class="nav-item-text">AI对话</span>
+                     </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">
+                        <span>工具</span>
+                    </div>
+                    <div class="nav-item" data-page="timer" data-tooltip="番茄钟">
+                         <div class="nav-item-icon">
+                             <i class="fas fa-clock"></i>
+                         </div>
+                         <span class="nav-item-text">番茄钟</span>
+                     </div>
+                     <div class="nav-item" data-page="projects" data-tooltip="项目管理">
+                         <div class="nav-item-icon">
+                             <i class="fas fa-project-diagram"></i>
+                         </div>
+                         <span class="nav-item-text">项目管理</span>
+                     </div>
+                </div>
+            </div>
+            
+            <!-- 侧边栏底部 -->
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">用户</div>
+                        <div class="user-status">在线</div>
+                    </div>
+                    <div class="user-menu-toggle">
+                        <i class="fas fa-chevron-up"></i>
+                    </div>
+                </div>
+                
+                <div class="sidebar-actions">
+                    <button class="sidebar-action-btn" title="设置">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="sidebar-action-btn" title="帮助">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 右侧主内容区域 -->
+        <main class="main-content">
+            <!-- 笔记页面 -->
+            <div class="page" id="notes-page">
+                <div class="page-header">
+                    <h2>我的笔记</h2>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="搜索笔记..." id="search-input">
+                        </div>
+                        <button class="btn btn-primary" id="new-note-btn">
+                            <i class="fas fa-plus"></i>
+                            新建笔记
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="notes-container">
+                    <div class="notes-sidebar">
+                        <div class="filter-section">
+                            <select id="sort-select" class="form-select">
+                                <option value="updated">按更新时间</option>
+                                <option value="created">按创建时间</option>
+                                <option value="title">按标题</option>
+                            </select>
+                        </div>
+                        <div class="notes-list" id="notes-list">
+                            <!-- 笔记列表将在这里动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="note-editor">
+                        <div class="note-title-section">
+                            <input type="text" id="note-title" placeholder="笔记标题..." class="note-title-input">
+                            <button id="generate-title-btn" class="btn btn-ai" title="AI生成标题">✨ 生成标题</button>
+                        </div>
+                        <div class="note-content-section">
+                            <textarea id="note-content" placeholder="开始写笔记..." class="note-content-textarea"></textarea>
+                            <div class="ai-tools">
+                                <button id="polish-content-btn" class="btn btn-ai" title="AI内容润色">✨ 内容润色</button>
+                                <button id="suggest-tags-btn" class="btn btn-ai" title="AI标签建议">🏷️ 标签建议</button>
+                            </div>
+                        </div>
+                        <div class="note-tags-section">
+                            <label>标签：</label>
+                            <div id="note-tags" class="tags-container"></div>
+                        </div>
+                        <div class="note-actions">
+                            <button id="save-note" class="btn btn-primary">保存</button>
+                            <button id="delete-note" class="btn btn-danger">删除</button>
+                        </div>
+                    </div>
+                    
+                    <!-- AI润色侧边栏 -->
+                    <div class="ai-sidebar" id="ai-sidebar">
+                        <div class="ai-header">
+                            <h3>AI助手</h3>
+                            <button class="btn btn-icon" id="close-ai-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="ai-options">
+                            <button class="ai-option" data-action="grammar">
+                                <i class="fas fa-spell-check"></i>
+                                语法检查
+                            </button>
+                            <button class="ai-option" data-action="rewrite">
+                                <i class="fas fa-edit"></i>
+                                语句重组
+                            </button>
+                            <button class="ai-option" data-action="summarize">
+                                <i class="fas fa-compress-alt"></i>
+                                总结提炼
+                            </button>
+                            <button class="ai-option" data-action="tone">
+                                <i class="fas fa-user-tie"></i>
+                                调整语气
+                            </button>
+                            <button class="ai-option" data-action="professional">
+                                <i class="fas fa-briefcase"></i>
+                                专业化
+                            </button>
+                        </div>
+                        <div class="ai-result" id="ai-result">
+                            <!-- AI处理结果将在这里显示 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 待办事项页面 -->
+            <div id="todos-page" class="page-content" style="display: none;">
+                <div class="page-header">
+                    <h1>待办事项</h1>
+                    <div class="page-actions">
+                        <button class="btn btn-primary" id="add-todo-btn">
+                            <i class="fas fa-plus"></i>
+                            添加待办
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 统计信息 -->
+                <div class="todo-stats-container">
+                    <div id="todo-stats" class="stats-grid">
+                        <!-- 统计信息将在这里显示 -->
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div id="todo-progress" class="progress-fill">0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 添加待办事项 -->
+                <div class="add-todo-section">
+                    <div class="input-group">
+                        <input type="text" id="new-todo-input" placeholder="添加新的待办事项..." class="todo-input">
+                        <button id="add-todo-btn" class="btn btn-primary">添加</button>
+                    </div>
+                </div>
+                
+                <!-- 筛选和排序 -->
+                <div class="todos-controls">
+                    <div class="todos-filters">
+                        <button class="filter-btn active" data-filter="all">全部</button>
+                        <button class="filter-btn" data-filter="active">待完成</button>
+                        <button class="filter-btn" data-filter="completed">已完成</button>
+                        <button class="filter-btn" data-filter="overdue">已逾期</button>
+                    </div>
+                    
+                    <div class="todos-sort">
+                        <select id="todo-sort" class="sort-select">
+                            <option value="created">按创建时间</option>
+                            <option value="priority">按优先级</option>
+                            <option value="dueDate">按截止日期</option>
+                            <option value="title">按标题</option>
+                        </select>
+                    </div>
+                    
+                    <div class="todos-actions">
+                        <button id="mark-all-completed" class="btn btn-secondary">全部完成</button>
+                        <button id="delete-completed" class="btn btn-danger">删除已完成</button>
+                    </div>
+                </div>
+                
+                <!-- 待办事项列表 -->
+                <div class="todos-container">
+                    <div class="todos-list" id="todos-list">
+                        <!-- 待办事项列表将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI对话页面 -->
+            <div id="chat-page" class="page">
+                <div class="chat-layout">
+                    <!-- 对话列表侧边栏 -->
+                    <div class="chat-sidebar">
+                        <div class="chat-sidebar-header">
+                            <h3>对话历史</h3>
+                            <button id="new-chat" class="btn-primary" title="新建对话">
+                                <i class="icon">+</i>
+                            </button>
+                        </div>
+                        
+                        <div class="chat-search">
+                            <input type="text" id="chat-search" placeholder="搜索对话...">
+                        </div>
+                        
+                        <div class="conversations-list" id="conversations-list">
+                            <!-- 对话列表将在这里显示 -->
+                        </div>
+                        
+                        <div class="chat-actions">
+                            <button id="clear-chat" class="btn-secondary">清空对话</button>
+                            <button id="export-chat" class="btn-secondary">导出对话</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 主对话区域 -->
+                    <div class="chat-main">
+                        <div class="chat-header">
+                            <h2 id="current-chat-title">AI助手</h2>
+                            <div class="chat-info">
+                                <span id="chat-status">在线</span>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- 对话消息将在这里显示 -->
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <div class="chat-input">
+                                <textarea id="message-input" placeholder="输入消息... (Shift+Enter换行，Enter发送)" rows="1"></textarea>
+                                <button id="send-message" class="send-btn" title="发送消息">
+                                    <i class="icon">→</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 番茄钟页面 -->
+            <div id="pomodoro-page" class="page">
+                <div class="pomodoro-container">
+                    <!-- 主计时器区域 -->
+                    <div class="pomodoro-main">
+                        <div class="session-info">
+                            <div id="pomodoro-session-type" class="session-type work">专注时间</div>
+                            <div id="pomodoro-session-count" class="session-count">第 1 个番茄钟</div>
+                        </div>
+                        
+                        <div class="timer-circle">
+                            <div class="timer-progress">
+                                <div id="pomodoro-progress" class="progress-bar"></div>
+                            </div>
+                            <div class="timer-display">
+                                <div id="pomodoro-timer" class="timer-text">25:00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timer-controls">
+                            <button id="pomodoro-start" class="btn-primary timer-btn">开始</button>
+                            <button id="pomodoro-reset" class="btn-secondary timer-btn" disabled>重置</button>
+                            <button id="pomodoro-skip" class="btn-secondary timer-btn" disabled>跳过</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 统计信息 -->
+                    <div class="pomodoro-stats">
+                        <h3>今日统计</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="pomodoro-completed-today">0</div>
+                                <div class="stat-label">完成番茄钟</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="pomodoro-total-time">00:00</div>
+                                <div class="stat-label">专注时长</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="pomodoro-actions">
+                        <button id="pomodoro-settings" class="btn-secondary">设置</button>
+                        <button id="pomodoro-stats" class="btn-secondary">详细统计</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 番茄钟设置模态框 -->
+            <div id="pomodoro-settings-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>番茄钟设置</h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="pomodoro-settings-form">
+                            <div class="form-group">
+                                <label for="work-duration">工作时长 (分钟)</label>
+                                <input type="number" id="work-duration" min="1" max="60" value="25">
+                            </div>
+                            <div class="form-group">
+                                <label for="short-break-duration">短休息时长 (分钟)</label>
+                                <input type="number" id="short-break-duration" min="1" max="30" value="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="long-break-duration">长休息时长 (分钟)</label>
+                                <input type="number" id="long-break-duration" min="1" max="60" value="15">
+                            </div>
+                            <div class="form-group">
+                                <label for="sessions-until-long-break">长休息间隔 (番茄钟数)</label>
+                                <input type="number" id="sessions-until-long-break" min="2" max="10" value="4">
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="auto-start-breaks">
+                                    自动开始休息
+                                </label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="auto-start-pomodoros">
+                                    自动开始工作
+                                </label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="sound-enabled" checked>
+                                    启用提示音
+                                </label>
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="notifications-enabled" checked>
+                                    启用通知
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary modal-close">取消</button>
+                        <button type="submit" form="pomodoro-settings-form" class="btn-primary">保存</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 番茄钟统计模态框 -->
+            <div id="pomodoro-stats-modal" class="modal">
+                <div class="modal-content large">
+                    <div class="modal-header">
+                        <h3>番茄钟统计</h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="stats-section">
+                            <h4>今日统计</h4>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">完成番茄钟</span>
+                                    <span class="stat-value" id="stats-today-completed">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">专注时长</span>
+                                    <span class="stat-value" id="stats-today-time">00:00</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">中断次数</span>
+                                    <span class="stat-value" id="stats-today-interrupted">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-section">
+                            <h4>本周统计</h4>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">完成番茄钟</span>
+                                    <span class="stat-value" id="stats-week-completed">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">专注时长</span>
+                                    <span class="stat-value" id="stats-week-time">00:00</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">日均完成</span>
+                                    <span class="stat-value" id="stats-week-average">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-section">
+                            <h4>总计统计</h4>
+                            <div class="stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-label">总完成数</span>
+                                    <span class="stat-value" id="stats-total-completed">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">总时长</span>
+                                    <span class="stat-value" id="stats-total-time">00:00</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">活跃天数</span>
+                                    <span class="stat-value" id="stats-total-days">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary modal-close">关闭</button>
+                        <button type="button" class="btn-secondary" onclick="pomodoroManager.exportStats()">导出数据</button>
+                        <button type="button" class="btn-danger" onclick="pomodoroManager.clearAllData()">清除数据</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目管理页面 -->
+            <div class="page hidden" id="projects-page">
+                <div class="projects-container">
+                    <!-- 项目列表视图 -->
+                    <div class="projects-list">
+                        <div class="projects-header">
+                            <h2>项目管理</h2>
+                            <button id="newProjectBtn" class="btn btn-primary">
+                                <i class="icon-add">➕</i> 新建项目
+                            </button>
+                        </div>
+                        
+                        <div class="projects-controls">
+                            <div class="search-box">
+                                <input type="text" id="projectSearch" placeholder="搜索项目..." class="search-input">
+                            </div>
+                            
+                            <div class="filter-controls">
+                                <select id="projectFilter" class="filter-select">
+                                    <option value="all">全部状态</option>
+                                    <option value="planning">规划中</option>
+                                    <option value="active">进行中</option>
+                                    <option value="completed">已完成</option>
+                                    <option value="on-hold">暂停</option>
+                                </select>
+                                
+                                <select id="projectSort" class="sort-select">
+                                    <option value="updated">最近更新</option>
+                                    <option value="created">创建时间</option>
+                                    <option value="name">项目名称</option>
+                                    <option value="priority">优先级</option>
+                                    <option value="deadline">截止日期</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="projectsList" class="projects-grid">
+                            <!-- 项目卡片将在这里动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 项目详情视图 -->
+                    <div class="project-detail" style="display: none;">
+                        <div class="project-detail-header">
+                            <button class="btn btn-secondary" onclick="projectManager.backToProjectList()">
+                                <i class="icon-back">←</i> 返回列表
+                            </button>
+                            <div class="project-detail-actions">
+                                <button class="btn btn-primary" onclick="projectManager.showEditProjectModal(projectManager.currentProject.id)">
+                                    <i class="icon-edit">✏️</i> 编辑项目
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="project-detail-content">
+                            <div class="project-info">
+                                <h2 id="projectDetailName">项目名称</h2>
+                                <p id="projectDetailDescription">项目描述</p>
+                                
+                                <div class="project-meta-info">
+                                    <div class="meta-item">
+                                        <span class="meta-label">状态:</span>
+                                        <span id="projectDetailStatus" class="meta-value">进行中</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">优先级:</span>
+                                        <span id="projectDetailPriority" class="meta-value">高</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">进度:</span>
+                                        <span id="projectDetailProgress" class="meta-value">75%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="project-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tasks-section">
+                                <div class="tasks-header">
+                                    <h3>任务列表</h3>
+                                    <button class="btn btn-primary" onclick="document.getElementById('taskModal').style.display='flex'">
+                                        <i class="icon-add">➕</i> 添加任务
+                                    </button>
+                                </div>
+                                
+                                <div id="tasksList" class="tasks-list">
+                                    <!-- 任务列表将在这里动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 项目模态框 -->
+            <div id="projectModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">新建项目</h3>
+                        <button class="modal-close" onclick="document.getElementById('projectModal').style.display='none'">&times;</button>
+                    </div>
+                    
+                    <form id="projectForm" class="modal-body">
+                        <div class="form-group">
+                            <label for="projectName">项目名称 *</label>
+                            <input type="text" id="projectName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="projectDescription">项目描述</label>
+                            <textarea id="projectDescription" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="projectStartDate">开始日期</label>
+                                <input type="date" id="projectStartDate">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="projectEndDate">截止日期</label>
+                                <input type="date" id="projectEndDate">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="projectPriority">优先级</label>
+                                <select id="projectPriority">
+                                    <option value="low">低</option>
+                                    <option value="medium" selected>中</option>
+                                    <option value="high">高</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="projectStatus">状态</label>
+                                <select id="projectStatus">
+                                    <option value="planning" selected>规划中</option>
+                                    <option value="active">进行中</option>
+                                    <option value="completed">已完成</option>
+                                    <option value="on-hold">暂停</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('projectModal').style.display='none'">取消</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 任务模态框 -->
+            <div id="taskModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">添加任务</h3>
+                        <button class="modal-close" onclick="document.getElementById('taskModal').style.display='none'">&times;</button>
+                    </div>
+                    
+                    <form id="taskForm" class="modal-body">
+                        <div class="form-group">
+                            <label for="taskTitle">任务标题 *</label>
+                            <input type="text" id="taskTitle" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="taskDescription">任务描述</label>
+                            <textarea id="taskDescription" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taskAssignee">负责人</label>
+                                <input type="text" id="taskAssignee">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="taskDueDate">截止日期</label>
+                                <input type="date" id="taskDueDate">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="taskPriority">优先级</label>
+                            <select id="taskPriority">
+                                <option value="low">低</option>
+                                <option value="medium" selected>中</option>
+                                <option value="high">高</option>
+                            </select>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('taskModal').style.display='none'">取消</button>
+                            <button type="submit" class="btn btn-primary">添加</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- AI润色结果模态框 -->
+    <div class="modal" id="polish-result-modal" style="display: none;">
+        <div class="modal-content polish-modal">
+            <div class="modal-header">
+                <h3>AI内容润色结果</h3>
+                <button class="btn btn-icon modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="polish-comparison">
+                    <div class="original-content">
+                        <h4>原文</h4>
+                        <div id="original-content" class="content-display"></div>
+                    </div>
+                    <div class="polished-content">
+                        <h4>润色后</h4>
+                        <div id="polished-content" class="content-display"></div>
+                    </div>
+                </div>
+                <div class="improvements-section">
+                    <h4>改进说明</h4>
+                    <ul id="improvements-list" class="improvements-list"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="apply-polish-btn" class="btn btn-primary">应用润色结果</button>
+                <button class="btn btn-secondary modal-close">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI标签建议模态框 -->
+    <div class="modal" id="tag-suggestions-modal" style="display: none;">
+        <div class="modal-content tags-modal">
+            <div class="modal-header">
+                <h3>AI标签建议</h3>
+                <button class="btn btn-icon modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="suggested-tags-container">
+                    <p>根据您的笔记内容，AI为您推荐以下标签：</p>
+                    <div id="suggested-tags-list" class="suggested-tags-list">
+                        <!-- 建议的标签将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="apply-tags-btn" class="btn btn-primary">应用所有标签</button>
+                <button class="btn btn-secondary modal-close">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通用模态框 -->
+    <div class="modal hidden" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">标题</h3>
+                <button class="btn btn-icon" id="close-modal-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 模态框内容 -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <!-- 模态框按钮 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 文件 -->
+    <script src="js/dataManager.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/todos.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/projects.js"></script>
+    <script src="js/notesManager.js"></script>
+    <script src="js/aiManager.js"></script>
+    <script src="js/todoManager.js"></script>
+    <script src="js/chatManager.js"></script>
+    <script src="js/pomodoroManager.js"></script>
+    <script src="js/projectManager.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
